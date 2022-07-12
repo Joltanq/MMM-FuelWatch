@@ -82,32 +82,7 @@ module.exports = NodeHelper.create({
 			feeds[f] = this.fetchers[f].items();
 		}
 
-		// Log.log(feeds);
-
-		// joins it a to just be one array
-
-		// arr = [].concat(...Object.values(feeds))
-
-		// let pp = {...feeds};
-		// Log.log(pp);
-
-
-		// // doesnt work
-		// const out = feeds.reduce((a,v) => {
-		// 	if (a[v.pumpDate]) {
-		// 		a[v.pumpDate].price = [a[v.pumpDate].price , v.price].join(',')
-		// 	} else {
-		// 		a[v.pumpDate] = v
-		// 	}
-		// 	return a
- 		// }, {})
-
-	
-		// arr = arr.appendChild(Object.values(feeds));
-
-		// const keys = Object.keys(feeds)[0];
-		// Log.log(out);
-// 
+		// console.log(feeds);
 
 		this.sendSocketNotification("NEWS_ITEMS", feeds);
 	}

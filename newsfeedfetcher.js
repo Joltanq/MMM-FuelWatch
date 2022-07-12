@@ -56,7 +56,7 @@ const NewsfeedFetcher = function (url, reloadInterval, encoding, logFeedWarnings
 
 			
 
-			// if (title)  {
+
 
 				items.push({
 					// title: title,
@@ -71,12 +71,7 @@ const NewsfeedFetcher = function (url, reloadInterval, encoding, logFeedWarnings
 
 
 				});
-			// } else if (logFeedWarnings) {
-			// 	Log.warn("Can't parse feed item:");
-			// 	Log.warn(item);
-			// 	Log.warn("Title: " + title);
-			// 	Log.warn("Description: " + description);
-			// }
+
 		});
 
 

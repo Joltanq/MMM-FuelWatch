@@ -1,5 +1,3 @@
-const { Log } = require("../../../module-types");
-
 /* Magic Mirror
  * Module: NewsFeed
  *
@@ -16,25 +14,11 @@ Module.register("newsfeed", {
 				encoding: "UTF-8" //ISO-8859-1
 			}
 		],
-		showAsList: false,
-		showSourceTitle: true,
-		showPublishDate: false,
-		broadcastNewsFeeds: false,
-		broadcastNewsUpdates: true,
-		showDescription: false,
-		wrapTitle: true,
-		wrapDescription: true,
-		truncDescription: true,
-		lengthDescription: 400,
-		hideLoading: false,
-		reloadInterval: 5 * 60 * 100000, // every 5 minutes
+		hideLoading: true,
+		reloadInterval: 60 * 60 * 100000, // every 60 minutes
 		updateInterval: 1000 * 1000,
 		animationSpeed: 2.5 * 1000,
-		maxFuelResults: 50, // 0 for unlimited
-		ignoreOldItems: false,
-		ignoreOlderThan: 24 * 60 * 60 * 1000, // 1 day
-		scrollLength: 500,
-		logFeedWarnings: false,
+		maxFuelResults: 0, // 0 for unlimited
 		dangerouslyDisableAutoEscaping: false
 	},
 
@@ -62,16 +46,12 @@ Module.register("newsfeed", {
 
 		// Set locale.
 		moment.locale(config.language);
-
 		this.newsItems = [];
 		this.loaded = false;
 		this.error = null;
-		this.activeItem = 0;
+		this.activeItem = 20;
 		this.scrollPosition = 0;
-
 		this.registerFeeds();
-
-		this.isShowingDescription = this.config.showDescription;
 	},
 
 	// Override socket notification handler.
@@ -102,21 +82,21 @@ Module.register("newsfeed", {
 	//Override template data and return whats used for the current template
 	getTemplateData: function () {
 		// this.config.showFullArticle is a run-time configuration, triggered by optional notifications
-		if (this.config.showFullArticle) {
-			return {
-				url: this.getActiveItemURL()
-			};
-		}
+		// if (this.config.showFullArticle) {
+		// 	return {
+		// 		url: this.getActiveItemURL()
+		// 	};
+		// }
 		if (this.error) {
 			return {
 				error: this.error
 			};
 		}
-		if (this.newsItems.length === 0) {
-			return {
-				empty: true
-			};
-		}
+			if (this.newsItems.length === 0) {
+				return {
+					empty: true
+				};
+			}
 		if (this.activeItem >= this.newsItems.length) {
 			this.activeItem = 0;
 		}
@@ -131,18 +111,11 @@ Module.register("newsfeed", {
 			loaded: true,
 			config: this.config,
 			sourceTitle: item.sourceTitle,
-			// publishDate: moment(new Date(item.pubdate)).fromNow(),
-			// title: item.title,
-			// description: item.description,
 			brand: item.brand,
 			price: item.price,
 			pumpDate: item.pumpDate,
-			// location: item.location,
-			// address: item.address,
 			trading_name: item['trading-name'],
 			items: items
-
-
 		};
 	},
 
@@ -169,60 +142,58 @@ Module.register("newsfeed", {
 	 */
 
 	generateFeed: function (feeds) {
-		let newsItemsx = [];
-		let newsItemsy = [];
+		let newsItemstoday = [];
+		let newsItemsyesterday = [];
+		let newsItemstomorrow = [];
 
 		for (let feed in feeds) {
 			const feedItems = feeds[feed];
 				for (let item of feedItems) {
 					if (feed.indexOf('today') > -1 ){
-					newsItemsx.push(item );
+					newsItemstoday.push(item );
 					
 		}}}
-// rename yesterday keys
+		// rename price. the rest can stay the same
 		for (let feed in feeds) {
 			const feedItems = feeds[feed];
 				for (let item of feedItems) {
 					if (feed.indexOf('yesterday') > -1 ){
-					delete Object.assign(item, {["brandy"]: item["brand"] })["brand"];
-					delete Object.assign(item, {["pricey"]: item["price"] })["price"];
-					delete Object.assign(item, {["pumpDatey"]: item["pumpDate"] })["pumpDate"];
-					delete Object.assign(item, {["trading_namey"]: item["trading_name"] })["trading_name"];
-					newsItemsy.push(item );
-
+					delete Object.assign(item, {["priceyesterday"]: item["price"] })["price"];
+					newsItemsyesterday.push(item );
 		}}}
 		
 
-		// let arr3 = arr1.map((item, i) => Object.assign({}, item, arr2[i]));
+		// rename tomorrow price key.
+		for (let feed in feeds) {
+			const feedItems = feeds[feed];
+				for (let item of feedItems) {
+					if (feed.indexOf('tomorrow') > -1 ){
+					delete Object.assign(item, {["pricetomorrow"]: item["price"] })["price"];
+					newsItemstomorrow.push(item );
+		}}}
 
-	// 	const mergeById = (a1, a2) =>
-	// 		a1.map(itm => ({
-	// 		...a2.find((item) => (item.id === itm.id) && item),
-	// 		...itm
-    // }));
-	
-	let newsItems = (newsItemsx, newsItemsy) =>
-			newsItemsx.map(itm => ({
-			...newsItemsy.find((item) => (item.trading_namey === itm.trading_name) && item),
+
+		const mergeDays = (a1, a2) =>
+			a1.map(itm => ({
+			...a2.find((item) => (item.trading_name === itm.trading_name) && item),
 			...itm
     }));
 
+	// merge into one array for visualisation
+	let newsItems = (mergeDays(newsItemstoday,newsItemsyesterday));
+	
+	
 
 
-
-		if (this.config.maxFuelResults > 0) {
-			newsItems = newsItems.slice(0, this.config.maxFuelResults);
-		}
-
-		// Sort by price, then address
+		// Sort by price
 		
-		newsItems.sort((a,b) => a.price - b.price || a.trading_name.localeCompare(b.trading_name) || a.pumpDate < b.pumpDate );
+		newsItems.sort((a,b) => a.price - b.price  );
 		
 
 
 		this.newsItems = newsItems;
-		Log.log(newsItemsx);
-		Log.log(newsItemsy);
+		Log.log(newsItemstoday);
+		Log.log(newsItemsyesterday);
 		Log.log(newsItems);
 	},
 
