@@ -1,3 +1,5 @@
+const { Log } = require("../../../module-types");
+
 /* Magic Mirror
  * Module: NewsFeed
  *
@@ -17,7 +19,7 @@ Module.register("newsfeed", {
 		showAsList: false,
 		showSourceTitle: true,
 		showPublishDate: false,
-		broadcastNewsFeeds: true,
+		broadcastNewsFeeds: false,
 		broadcastNewsUpdates: true,
 		showDescription: false,
 		wrapTitle: true,
@@ -25,10 +27,10 @@ Module.register("newsfeed", {
 		truncDescription: true,
 		lengthDescription: 400,
 		hideLoading: false,
-		reloadInterval: 5 * 60 * 1000, // every 5 minutes
-		updateInterval: 10 * 1000,
+		reloadInterval: 5 * 60 * 100000, // every 5 minutes
+		updateInterval: 1000 * 1000,
 		animationSpeed: 2.5 * 1000,
-		maxFuelResults: 0, // 0 for unlimited
+		maxFuelResults: 50, // 0 for unlimited
 		ignoreOldItems: false,
 		ignoreOlderThan: 24 * 60 * 60 * 1000, // 1 day
 		scrollLength: 500,
@@ -94,11 +96,6 @@ Module.register("newsfeed", {
 
 	//Override fetching of template name
 	getTemplate: function () {
-		if (this.config.feedUrl) {
-			return "oldconfig.njk";
-		} else if (this.config.showFullArticle) {
-			return "fullarticle.njk";
-		}
 		return "newsfeed.njk";
 	},
 
@@ -134,18 +131,22 @@ Module.register("newsfeed", {
 			loaded: true,
 			config: this.config,
 			sourceTitle: item.sourceTitle,
-			publishDate: moment(new Date(item.pubdate)).fromNow(),
-			title: item.title,
-			description: item.description,
+			// publishDate: moment(new Date(item.pubdate)).fromNow(),
+			// title: item.title,
+			// description: item.description,
 			brand: item.brand,
 			price: item.price,
 			pumpDate: item.pumpDate,
-			location: item.location,
-			address: item.address,
+			// location: item.location,
+			// address: item.address,
 			trading_name: item['trading-name'],
 			items: items
+
+
 		};
 	},
+
+
 
 
 
@@ -166,20 +167,45 @@ Module.register("newsfeed", {
 	 *
 	 * @param {object} feeds An object with feeds returned by the node helper.
 	 */
+
 	generateFeed: function (feeds) {
-		let newsItems = [];
+		let newsItemsx = [];
+		let newsItemsy = [];
+
 		for (let feed in feeds) {
 			const feedItems = feeds[feed];
-			if (this.subscribedToFeed(feed)) {
 				for (let item of feedItems) {
-					item.sourceTitle = this.titleForFeed(feed);
-					if (!(this.config.ignoreOldItems && Date.now() - new Date(item.pubdate) > this.config.ignoreOlderThan)) {
-						newsItems.push(item);
-					}
-				}
-			}
-		}
+					if (feed.indexOf('today') > -1 ){
+					newsItemsx.push(item );
+					
+		}}}
+// rename yesterday keys
+		for (let feed in feeds) {
+			const feedItems = feeds[feed];
+				for (let item of feedItems) {
+					if (feed.indexOf('yesterday') > -1 ){
+					delete Object.assign(item, {["brandy"]: item["brand"] })["brand"];
+					delete Object.assign(item, {["pricey"]: item["price"] })["price"];
+					delete Object.assign(item, {["pumpDatey"]: item["pumpDate"] })["pumpDate"];
+					delete Object.assign(item, {["trading_namey"]: item["trading_name"] })["trading_name"];
+					newsItemsy.push(item );
 
+		}}}
+		
+
+		// let arr3 = arr1.map((item, i) => Object.assign({}, item, arr2[i]));
+
+	// 	const mergeById = (a1, a2) =>
+	// 		a1.map(itm => ({
+	// 		...a2.find((item) => (item.id === itm.id) && item),
+	// 		...itm
+    // }));
+	
+	let newsItems = (newsItemsx, newsItemsy) =>
+			newsItemsx.map(itm => ({
+			...newsItemsy.find((item) => (item.trading_namey === itm.trading_name) && item),
+			...itm
+    }));
 
 
 
@@ -189,26 +215,15 @@ Module.register("newsfeed", {
 		}
 
 		// Sort by price, then address
+		
+		newsItems.sort((a,b) => a.price - b.price || a.trading_name.localeCompare(b.trading_name) || a.pumpDate < b.pumpDate );
+		
 
-		newsItems.sort((a,b) => a.price - b.price || a.address.localeCompare(b.address));
-
-
-
-		// get updated news items and broadcast them
-		const updatedItems = [];
-		newsItems.forEach((value) => {
-			if (this.newsItems.findIndex((value1) => value1 === value) === -1) {
-				// Add item to updated items list
-				updatedItems.push(value);
-			}
-		});
-
-		// check if updated items exist, if so and if we should broadcast these updates, then lets do so
-		if (this.config.broadcastNewsUpdates && updatedItems.length > 0) {
-			this.sendNotification("NEWS_FEED_UPDATE", { items: updatedItems });
-		}
 
 		this.newsItems = newsItems;
+		Log.log(newsItemsx);
+		Log.log(newsItemsy);
+		Log.log(newsItems);
 	},
 
 	/**
@@ -226,20 +241,7 @@ Module.register("newsfeed", {
 		return false;
 	},
 
-	/**
-	 * Returns title for the specific feed url.
-	 *
-	 * @param {string} feedUrl Url of the feed
-	 * @returns {string} The title of the feed
-	 */
-	titleForFeed: function (feedUrl) {
-		for (let feed of this.config.feeds) {
-			if (feed.url === feedUrl) {
-				return feed.title || "";
-			}
-		}
-		return "";
-	},
+
 
 	/**
 	 * Schedule visual update.

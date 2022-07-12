@@ -41,43 +41,45 @@ const NewsfeedFetcher = function (url, reloadInterval, encoding, logFeedWarnings
 		items = [];
 
 		const parser = new FeedMe();
-
+		// const myFeed = [];
 		parser.on("item", (item) => {
-			const title = item.title;
-			let description = item.description ;
+			// const title = item.title;
+			// let description = item.description ;
 			let brand = item.brand;
 			let price = item.price;
 			let pumpDate = item.date;
-			let location = item.location;
-			let address = item.address;
+			// let location = item.location;
+			// let address = item.address;
 			let trading_name = item['trading-name'];
+			
 
 
+			
 
-
-			if (title) {
-				const regex = /(<([^>]+)>)/gi;
-				description = description.toString().replace(regex, "");
+			// if (title)  {
 
 				items.push({
-					title: title,
-					description: description,
-					brand:brand,
+					// title: title,
+					// description: description,
+					brand:brand, 
 					price: price,
 					pumpDate: pumpDate,
-					location:location,
-					address: address,
+					// location:location,
+					// address: address,
 					trading_name: trading_name,
+			
 
 
 				});
-			} else if (logFeedWarnings) {
-				Log.warn("Can't parse feed item:");
-				Log.warn(item);
-				Log.warn("Title: " + title);
-				Log.warn("Description: " + description);
-			}
+			// } else if (logFeedWarnings) {
+			// 	Log.warn("Can't parse feed item:");
+			// 	Log.warn(item);
+			// 	Log.warn("Title: " + title);
+			// 	Log.warn("Description: " + description);
+			// }
 		});
+
+
 
 		parser.on("end", () => {
 			this.broadcastItems();
