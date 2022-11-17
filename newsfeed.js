@@ -15,10 +15,10 @@ Module.register("newsfeed", {
 			}
 		],
 		hideLoading: true,
-		reloadInterval: 60 * 60 * 100000, // every 60 minutes
-		updateInterval: 1000 * 1000,
+		reloadInterval: 300000, // every 60 minutes 
+		updateInterval: 300000,	// every 61 mins
 		animationSpeed: 2.5 * 1000,
-		maxFuelResults: 0, // 0 for unlimited
+		maxFuelResults: 5, // 0 for unlimited
 		dangerouslyDisableAutoEscaping: false
 	},
 
@@ -173,14 +173,15 @@ Module.register("newsfeed", {
 		}}}
 
 
-		const mergeDays = (a1, a2) =>
+		const mergeDays = (a1, a2,a3) =>
 			a1.map(itm => ({
 			...a2.find((item) => (item.trading_name === itm.trading_name) && item),
+			...a3.find((item3) => (item3.trading_name === itm.trading_name) && item3),
 			...itm
     }));
 
 	// merge into one array for visualisation
-	let newsItems = (mergeDays(newsItemstoday,newsItemsyesterday));
+	let newsItems = (mergeDays(newsItemstoday,newsItemsyesterday,newsItemstomorrow));
 	
 	
 
