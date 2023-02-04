@@ -11,7 +11,27 @@
                                     
     {% else %}
 
+        
+
+
+        {% set minToday = 0 %}
+        {% set minTomorrow = 0 %}
         <div>
+        {% for item in items| sort(false,true, 'price')  %}    
+            {% if loop.index0 == 0 %}
+
+                {% set minToday = item.price %}
+            {% endif %}
+        {% endfor %}
+
+        {% for item in items| sort(false,true, 'pricetomorrow')  %}    
+            {% if loop.index0 == 0 %}
+    
+                {% set minTomorrow = item.pricetomorrow %}
+            {% endif %}
+        {% endfor %}
+        
+
 
             <table>
                 <thead>
@@ -21,21 +41,35 @@
                         <th>Servo Name</th>
                         <th>Today Price</th>
                         <th>Tomorrow Price</th>
-                        <th>Yesterday Price</th>
+
                     </tr>   
                 </thead>
                 <tbody>
-                    {%for item in items  %}
-        
+
+                    {% for item in items  %}    
+                      
+                        
                         <tr>
                             <td> <img src="..\modules\default\newsfeed\logo\{{item.brand}}.svg" width = "50" height = "50"   /> </td>
-                            <td>{{item.trading_name}}</td>                        
-                            <td>{{item.price}}</td>
-                            <td>{{item.pricetomorrow}}</td>
-                            <td>{{item.priceyesterday}}</td>
-                        {% endfor %}
+                            <td>{{item.trading_name}}</td> 
+                            {% if item.price == minToday %}          
+                                <td style = "color:red;"> {{item.price}} </td>
+                            {% else %}
+                                <td> {{item.price}} </td>
+                            {% endif %}
+                            {% if item.pricetomorrow == minTomorrow %}     
+                                <td style = "color:red;"> {{item.pricetomorrow}} </td>
+                            {% else %}
+                                <td> {{item.pricetomorrow}} </td>
+                            {% endif %}
+                          
 
-                        </tr>
+                            </tr>
+                           
+
+                    {% endfor %}
+
+                      
                 </tbody>
             </table>
 
