@@ -135,6 +135,7 @@ Module.register("newsfeed", {
 		}
 	},
 
+
 	/**
 	 * Generate an ordered list of items for this configured module.
 	 *
@@ -151,26 +152,24 @@ Module.register("newsfeed", {
 				for (let item of feedItems) {
 					if (feed.indexOf('today') > -1 ){
 					newsItemstoday.push(item );
-					
-		}}}
-		// rename price. the rest can stay the same
-		for (let feed in feeds) {
-			const feedItems = feeds[feed];
-				for (let item of feedItems) {
-					if (feed.indexOf('yesterday') > -1 ){
+					newsItemstoday.sort((a,b) => a.price - b.price  );
+					// item.minToday =  newsItemstoday[0].price;
+					}
+				else if (feed.indexOf('yesterday') > -1 ){
 					delete Object.assign(item, {["priceyesterday"]: item["price"] })["price"];
 					newsItemsyesterday.push(item );
-		}}}
-		
-
-		// rename tomorrow price key.
-		for (let feed in feeds) {
-			const feedItems = feeds[feed];
-				for (let item of feedItems) {
-					if (feed.indexOf('tomorrow') > -1 ){
+					// newsItemsyesterday.sort((a,b) => a.priceyesterday - b.priceyesterday  );
+					// item.minYesterday =  newsItemsyesterday[0].priceyesterday;			
+		}
+				else if (feed.indexOf('tomorrow') > -1 ) {
 					delete Object.assign(item, {["pricetomorrow"]: item["price"] })["price"];
 					newsItemstomorrow.push(item );
-		}}}
+		}
+
+				}			
+			}
+
+
 
 
 		const mergeDays = (a1, a2,a3) =>
@@ -182,19 +181,42 @@ Module.register("newsfeed", {
 
 	// merge into one array for visualisation
 	let newsItems = (mergeDays(newsItemstoday,newsItemsyesterday,newsItemstomorrow));
-	
-	
 
+	// for (let item in newsItems) {
+	// 		newsItems.sort((a,b) => a.price - b.price  );
+		
+	// 		item.minToday =  newsItems[0].price;
+	// 		newsItems.push(item.mint)
+	// }
+
+
+	// for (let feed in feeds) {
+	// 		for (let item of feedItems) {
+	// 			newsItems.sort((a,b) => a.price - b.price  );
+				
+	// 		}			
+	// 	}
 
 		// Sort by price
 		
-		newsItems.sort((a,b) => a.price - b.price  );
-		
+		// newsItems.sort((a,b) => a.price - b.price  );
+		//  // somewhere here, store the min price, then have a function to compare and check if it is = min price	
+		// let minpricetoday = newsItems[0].price; 
 
+		// might need a try catch to pick up min price. i tink it breaks if tomrorownot ther
+		// newsItemstomorrow.sort((a,b) => a.price - b.price );
+		// let minpricetomorrow = newsItemstomorrow[0].price; 
+
+
+
+		// Log.log(minpricetoday);
+		// Log.log(minpricetomorrow);
+		// Log.log(newsItemstomorrow);
 
 		this.newsItems = newsItems;
-		Log.log(newsItemstoday);
-		Log.log(newsItemsyesterday);
+		// Log.log(newsItemstoday);
+		// Log.log(newsItemsyesterday);
+		// Log.log(newsItemstomorrow);
 		Log.log(newsItems);
 	},
 
