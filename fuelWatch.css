@@ -1,0 +1,23 @@
+iframe.fuelWatch-fullarticle {
+  width: 100vw;
+  /* very large height value to allow scrolling */
+  height: 3000px;
+  top: 0;
+  left: 0;
+  border: none;
+  z-index: 1;
+}
+
+.region.bottom.bar.fuelWatch-fullarticle {
+  bottom: inherit;
+  top: -90px;
+}
+
+.fuelWatch-list {
+  list-style: none;
+}
+
+.fuelWatch-list li {
+  text-align: justify;
+  margin-bottom: 0.5em;
+}

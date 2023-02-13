@@ -1,12 +1,12 @@
 /* Magic Mirror
- * Node Helper: Newsfeed
+ * Node Helper: MMMM-FuelWatch
  *
  * By Michael Teeuw https://michaelteeuw.nl
  * MIT Licensed.
  */
 
 const NodeHelper = require("node_helper");
-const NewsfeedFetcher = require("./newsfeedfetcher.js");
+const NewsfeedFetcher = require("./fuelfetcher.js");
 const Log = require("logger");
 
 module.exports = NodeHelper.create({
@@ -39,13 +39,13 @@ module.exports = NodeHelper.create({
 			new URL(url);
 		} catch (error) {
 			Log.error("Newsfeed Error. Malformed newsfeed url: ", url, error);
-			this.sendSocketNotification("NEWSFEED_ERROR", { error_type: "MODULE_ERROR_MALFORMED_URL" });
+			this.sendSocketNotification("FUELFEED_ERROR", { error_type: "MODULE_ERROR_MALFORMED_URL" });
 			return;
 		}
 
 		let fetcher;
 		if (typeof this.fetchers[url] === "undefined") {
-			Log.log("Create new newsfetcher for url: " + url + " - Interval: " + reloadInterval);
+			Log.log("Create new fuelfetcher for url: " + url + " - Interval: " + reloadInterval);
 			fetcher = new NewsfeedFetcher(url, reloadInterval, encoding, config.logFeedWarnings);
 
 			fetcher.onReceive(() => {
@@ -53,9 +53,9 @@ module.exports = NodeHelper.create({
 			});
 
 			fetcher.onError((fetcher, error) => {
-				Log.error("Newsfeed Error. Could not fetch newsfeed: ", url, error);
+				Log.error("fuelFetcher Error. Could not fetch feed: ", url, error);
 				let error_type = NodeHelper.checkFetchError(error);
-				this.sendSocketNotification("NEWSFEED_ERROR", {
+				this.sendSocketNotification("FUELFEED_ERROR", {
 					error_type
 				});
 			});
@@ -77,13 +77,10 @@ module.exports = NodeHelper.create({
 	 */
 	broadcastFeeds: function () {
 		const feeds = {};
-		// const nf = [];
+
 		for (let f in this.fetchers) {
 			feeds[f] = this.fetchers[f].items();
 		}
-
-		// console.log(feeds);
-
-		this.sendSocketNotification("NEWS_ITEMS", feeds);
+		this.sendSocketNotification("FUEL_ITEMS", feeds);
 	}
 });

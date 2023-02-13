@@ -1,0 +1,122 @@
+{% macro escapeText(text, dangerouslyDisableAutoEscaping=false) %}
+  {% if dangerouslyDisableAutoEscaping %}
+    {{ text | safe}}
+  {% else %}
+    {{ text }}
+  {% endif %}
+{% endmacro %}
+
+{% if loaded %}
+    {% if config.showAsList %}
+                                    
+    {% else %}
+
+        
+
+
+        {% set minToday91 = 0 %}
+        {% set minToday95 = 0 %}
+        {% set minTomorrow91 = 0 %}
+        {% set minTomorrow95 = 0 %}
+
+
+
+        {% for item in items| sort(false,true, 'price91')  %}    
+            {% if loop.index0 == 0 %}
+                {% set minToday91 = item.price91 %}
+            {% endif %}
+        {% endfor %}
+
+
+        {% for item in items| sort(false,true, 'price95')  %}    
+            {% if loop.index0 == 0 %}
+                {% set minToday95 = item.price95 %}
+            {% endif %}
+        {% endfor %}        
+
+        {% for item in items| sort(false,true, 'pricetomorrow91')  %}    
+            {% if loop.index0 == 0 %}
+                {% set minTomorrow91 = item.pricetomorrow91 %}
+            {% endif %}
+        {% endfor %}
+
+        {% for item in items| sort(false,true, 'pricetomorrow95')  %}    
+            {% if loop.index0 == 0 %}
+                {% set minTomorrow95 = item.pricetomorrow95 %}
+            {% endif %}
+        {% endfor %}
+        
+
+
+            <table>
+                <thead>
+                    <tr>
+
+                        <th>Logo</th>
+                        <th>Servo Name</th>
+                        <th>Today 91 Price</th>
+                        <th>Today 95 Price</th>
+                        <th>Tomorrow 91 Price</th>
+                        <th>Tomorrow 95 Price</th>
+
+                    </tr>   
+                </thead>
+                <tbody>
+
+                    {% for item in items  %}    
+                      
+                        
+                        <tr>
+                            <td> <img src="..\modules\MMM-Fuelwatch\logo\{{item.brand}}.svg" width = "50" height = "50"   /> </td>
+                            <td>{{item.trading_name}}</td> 
+                            {% if item.price91 == minToday91 %}          
+                                <td style = "color:red;"> {{item.price91}} </td>
+                            {% else %}
+                                <td> {{item.price91}} </td>
+                            {% endif %}
+
+                            {% if item.price95 == minToday95 %}          
+                                <td style = "color:yellow;"> {{item.price95}} </td>
+                            {% else %}
+                                <td> {{item.price95}} </td>
+                            {% endif %}
+
+                            {% if item.pricetomorrow91 == minTomorrow91 %}     
+                                <td style = "color:red;"> {{item.pricetomorrow91}} </td>
+                            {% else %}
+                                <td> {{item.pricetomorrow91}} </td>
+                            {% endif %}
+
+                            {% if item.pricetomorrow95 == minTomorrow95 %}     
+                                <td style = "color:yellow;"> {{item.pricetomorrow95}} </td>
+                            {% else %}
+                                <td> {{item.pricetomorrow95}} </td>
+                            {% endif %}
+
+                          
+
+                            </tr>
+                           
+
+                    {% endfor %}
+
+                      
+                </tbody>
+            </table>
+
+
+
+
+
+        </div>
+    {% endif %}
+{% elseif empty %}
+    <div class="small dimmed">
+        {{ "NEWSFEED_NO_ITEMS" | translate | safe }}
+    </div>
+{% elseif error %}
+    <div class="small dimmed">
+        {{ "MODULE_CONFIG_ERROR" | translate({MODULE_NAME: "Newsfeed", ERROR: error}) | safe }}
+    </div>
+{% else %}>
+{% endif %}
